@@ -1,0 +1,14 @@
+executable = math.sh
+universe = vanilla 
+Log = logfile.log 
+Output = output.dat 
+Error = errorfile  
+getenv = True
+
+Arguments = /home/lincolnb/mandelbrot/mandelbrot.m $(Process) 
+requirements = (HAS_MATHEMATICA =?= True)
+initialdir = /home/lincolnb/mandelbrot/output
+
+notify_user = lincolnb@hep.uchicago.edu
+
+queue 1 
