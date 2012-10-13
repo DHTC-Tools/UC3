@@ -62,10 +62,14 @@ if __name__ == '__main__':
   if config.has_option('Directories', 'read'):
     read_directories = config.get('Directories', 'read').split(',')
     read_directories = map(lambda x: x.strip(), read_directories)
+  else:
+    read_directories = ''
   
   if config.has_option('Directories', 'write'):
     write_directories = config.get('Directories', 'write').split(',')
     write_directories = map(lambda x: x.strip(), write_directories)
+  else:
+    write_directories = ''
   
   if config.has_option('Parrot', 'location'):
     parrot_url = config.get('Parrot', 'location')
