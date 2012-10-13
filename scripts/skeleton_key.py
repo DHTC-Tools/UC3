@@ -34,7 +34,16 @@ def set_chirp_acls(directory, acl = 'r'):
     
   
   
-
+def get_chirp_host():
+  """
+  Get chirp host information, starting chirp if necessary
+  """
+  chirp_dir = os.path.expanduser('~/.chirp')
+  if not os.path.exists(os.path.join(chirp_dir, 'chirp_running')):
+    os.system('/usr/local/bin/chirp start')
+  port = open(os.path.join(chirp_dir, 'chirp.port')).read()
+  return "uc3-data.uchicago.edu:%s" % port
+  
 if __name__ == '__main__':
   parser = optparse.OptionParser(usage='Usage: %prog [options] arg1 arg2', 
                                  version='%prog ' + VERSION)
@@ -71,7 +80,7 @@ if __name__ == '__main__':
   else:
     write_directories = ''
   
-  if config.has_option('Parrot', 'location'):
+  if config.has_option('Parrot', 'location') and config.get('Parrot', 'location') != '':
     parrot_url = config.get('Parrot', 'location')
   else:
     parrot_url = 'http://itbv-web.uchicago.edu/parrot.tar.gz'
@@ -86,7 +95,8 @@ if __name__ == '__main__':
   for directory in write_directories:
     set_chirp_acls(directory, 'w')
   
-  ticket_call = "chirp uc3-data.uchicago.edu ticket_create -output myticket.ticket -subject unix:user -bits 1024 -duration 86400 "
+  chirp_host = get_chirp_host()
+  ticket_call = "chirp %s ticket_create -output myticket.ticket -bits 1024 -duration 86400 " % chirp_host
   
   for directory in read_directories:
     ticket_call += " %s rl "
