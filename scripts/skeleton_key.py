@@ -11,25 +11,25 @@ def set_chirp_acls(directory, acl = 'r'):
   """
   if not os.path.exists(directory) or not os.path.isdir(directory):
     return False
-  acl_file = os.path.join(directory, '__acl')
+  acl_file = os.path.join(directory, '.__acl')
   user = getpass.getuser()
   acl_string = 'rl'
   if acl == 'w':
     acl_string = 'rwlda'
   if not os.path.exists(acl_file):
-    open(acl_file).write("unix:%s rwlda\n" % (user))
+    open(acl_file, 'w').write("unix:%s rwlda\n" % (user))
     return True
   buf = open(acl_file).read()
   match = re.search("unix:%s\s+([a-z]*)\s" % user, buf)
   if match is None:
     buf += "unix:%s %s\n" % (user, acl_string)
-    open(acl_file).write(buf)
+    open(acl_file, 'w').write(buf)
     return True
   elif acl in match.group(1):
     return True 
   else:
     buf = re.sub("unix:%s\s+([a-z]*)\s" % user,  "unix:%s rwlda" % user, buf)
-    open(acl_file).write(buf)
+    open(acl_file, 'w').write(buf)
     return True
     
   
@@ -84,16 +84,16 @@ if __name__ == '__main__':
     parrot_url = config.get('Parrot', 'location')
   else:
     parrot_url = 'http://itbv-web.uchicago.edu/parrot.tar.gz'
+    
+  if not config.has_option('Application', 'script'):
+    sys.stderr.write("Must give an script to run\n")
+    sys.exit(1)
+
   for directory in read_directories:
     if not set_chirp_acls(directory, 'r'):
       sys.stderr.write("Can't set read acl for %s\n" % directory)
       sys.exit(1)
-
-  if not config.has_option('Application', 'script'):
-    sys.stderr.write("Must give an script to run\n")
-    sys.exit(1)
   
-      
   for directory in write_directories:
     if not set_chirp_acls(directory, 'w'):
       sys.stderr.write("Can't set write acl for %s\n" % directory)
