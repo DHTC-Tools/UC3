@@ -85,7 +85,9 @@ if __name__ == '__main__':
   else:
     parrot_url = 'http://itbv-web.uchicago.edu/parrot.tar.gz'
   for directory in read_directories:
-    set_chirp_acls(directory, 'r')
+    if not set_chirp_acls(directory, 'r'):
+      sys.stderr.write("Can't set read acl for %s\n" % directory)
+      sys.exit(1)
 
   if not config.has_option('Application', 'script'):
     sys.stderr.write("Must give an script to run\n")
@@ -93,7 +95,9 @@ if __name__ == '__main__':
   
       
   for directory in write_directories:
-    set_chirp_acls(directory, 'w')
+    if not set_chirp_acls(directory, 'w'):
+      sys.stderr.write("Can't set write acl for %s\n" % directory)
+      sys.exit(1)
   
   chirp_host = get_chirp_host()
   ticket_call = "chirp %s ticket_create -output myticket.ticket -bits 1024 -duration 86400 " % chirp_host
