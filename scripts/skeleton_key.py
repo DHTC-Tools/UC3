@@ -41,7 +41,7 @@ def get_chirp_host():
   chirp_dir = os.path.expanduser('~/.chirp')
   if not os.path.exists(os.path.join(chirp_dir, 'chirp_running')):
     os.system('/usr/local/bin/chirp start')
-  port = open(os.path.join(chirp_dir, 'chirp.port')).read()
+  port = open(os.path.join(chirp_dir, 'chirp.port')).read().strip()
   return "uc3-data.uchicago.edu:%s" % port
   
 if __name__ == '__main__':
@@ -115,17 +115,17 @@ if __name__ == '__main__':
   script_contents += "ticket=<<EOF\n%s\nEOF\n" % ticket
   script_contents += "temp_directory='%s'\n" % tempfile.mktemp()
   script_contents += '''
-  mkdirectory $temp_directory
+  mkdir $temp_directory
   cd $temp_directory
   echo $ticket > chirp.ticket'''
-  script_contents += "wget %s\n" % parrot_url
-  script_contents += "tar xvzf %s " % parrot_url.split('/')[-1] 
+  script_contents += "\nwget %s\n" % parrot_url
+  script_contents += "tar xvzf %s \n" % parrot_url.split('/')[-1] 
   if config.has_option('Application', 'location') and config.get('Application', 'location') != '':
-    script_contents += "wget %s" % config.get('Application', 'location')
-    script_contents += "tar xvzf %s" % config.get('Application', 'location').split('/')[-1]
+    script_contents += "wget %s\n" % config.get('Application', 'location')
+    script_contents += "tar xvzf %s\n" % config.get('Application', 'location').split('/')[-1]
   arguments = ''
   if config.has_option('Application', 'arguments'):
     arguments = config.get('Application', 'arguments')
-  script_contents += "./parrot/bin/parrot_run -a ticket ./chirp.ticket %s %s $@" % (config.get('Application', 'script'),
+  script_contents += "./parrot/bin/parrot_run -a ticket ./chirp.ticket %s %s $@\n" % (config.get('Application', 'script'),
                                                                                     arguments)  
   open('job_script.sh', 'w').write(script_contents)
