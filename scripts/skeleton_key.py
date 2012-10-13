@@ -31,11 +31,11 @@ def set_chirp_acls(directory, acl = 'r'):
 
   match = re.search("hostname:\*.uchicago.edu\s+([a-z]*)\s", buf)
   if match is None:
-    buf += "hostname:*.uchicago.edu %s\n" % (user, acl_string)
+    buf += "hostname:*.uchicago.edu %s\n" % (acl_string)
   elif acl in match.group(1):
     pass 
   else:
-    buf = re.sub("hostname:\*.uchicago.edu\s+([a-z]*)\s" % user,  "hostname:*.uchicago.edu rwlda" % user, buf)
+    buf = re.sub("hostname:\*.uchicago.edu\s+([a-z]*)\s" % user,  "hostname:*.uchicago.edu rwlda", buf)
     open(acl_file, 'w').write(buf)
     return True
   
