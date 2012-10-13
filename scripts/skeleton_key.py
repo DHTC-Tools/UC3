@@ -17,21 +17,30 @@ def set_chirp_acls(directory, acl = 'r'):
   if acl == 'w':
     acl_string = 'rwlda'
   if not os.path.exists(acl_file):
-    open(acl_file, 'w').write("unix:%s rwlda\n" % (user))
+    acl_perms = "unix:%s rwlda\nhostname:*.uchicago.edu rwlda\n" % (user)
+    open(acl_file, 'w').write(acl_perms)
     return True
   buf = open(acl_file).read()
   match = re.search("unix:%s\s+([a-z]*)\s" % user, buf)
   if match is None:
     buf += "unix:%s %s\n" % (user, acl_string)
-    open(acl_file, 'w').write(buf)
-    return True
   elif acl in match.group(1):
-    return True 
+    pass 
   else:
     buf = re.sub("unix:%s\s+([a-z]*)\s" % user,  "unix:%s rwlda" % user, buf)
+
+  match = re.search("hostname:\*.uchicago.edu\s+([a-z]*)\s", buf)
+  if match is None:
+    buf += "hostname:*.uchicago.edu %s\n" % (user, acl_string)
+  elif acl in match.group(1):
+    pass 
+  else:
+    buf = re.sub("hostname:\*.uchicago.edu\s+([a-z]*)\s" % user,  "hostname:*.uchicago.edu rwlda" % user, buf)
     open(acl_file, 'w').write(buf)
     return True
-    
+  
+  open(acl_file, 'w').write(buf)
+  return True  
   
   
 def get_chirp_host():
@@ -130,6 +139,7 @@ if __name__ == '__main__':
   arguments = ''
   if config.has_option('Application', 'arguments'):
     arguments = config.get('Application', 'arguments')
-  script_contents += "./parrot/bin/parrot_run -a ticket ./chirp.ticket %s %s $@\n" % (config.get('Application', 'script'),
+  script_contents += "export CHIRP_MOUNT=/chirp/%s" % chirp_host
+  script_contents += "./parrot/bin/parrot_run -a ticket -i ./chirp.ticket %s %s $@\n" % (config.get('Application', 'script'),
                                                                                     arguments)  
   open('job_script.sh', 'w').write(script_contents)
