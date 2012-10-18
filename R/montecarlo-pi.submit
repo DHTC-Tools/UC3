@@ -1,0 +1,17 @@
+#Standard condor options
+universe = vanilla
+Log = log/mcpi.log.$(Process)
+Error = error/mcpi.err.$(Process)
+Output = output/mcpi.out.$(Process)
+
+# Compile R, run the mcpi.R script
+executable = R-wrapper.sh 
+arguments = mcpi.R
+
+# Data transfer options. 
+# We want to send R itself and our script to the remote machine.
+WhenToTransferOutput = ON_EXIT
+should_transfer_files = YES
+transfer_input_files = R-2.15.1.tar.gz, mcpi.R, R-2.15.1
+
+queue 100
