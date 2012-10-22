@@ -98,15 +98,15 @@ if __name__ == '__main__':
     sys.stderr.write("Must give an script to run\n")
     sys.exit(1)
 
-#  for directory in read_directories:
-#    if not set_chirp_acls(directory, 'r'):
-#      sys.stderr.write("Can't set read acl for %s\n" % directory)
-#      sys.exit(1)
-#  
-#  for directory in write_directories:
-#    if not set_chirp_acls(directory, 'w'):
-#      sys.stderr.write("Can't set write acl for %s\n" % directory)
-#      sys.exit(1)
+  for directory in read_directories:
+    if not set_chirp_acls(directory, 'r'):
+      sys.stderr.write("Can't set read acl for %s\n" % directory)
+      sys.exit(1)
+  
+  for directory in write_directories:
+    if not set_chirp_acls(directory, 'w'):
+      sys.stderr.write("Can't set write acl for %s\n" % directory)
+      sys.exit(1)
   
   chirp_host = get_chirp_host()
   ticket_call = "chirp %s ticket_create -output myticket.ticket -bits 1024 -duration 86400 " % chirp_host
@@ -133,10 +133,10 @@ if __name__ == '__main__':
   cd $temp_directory
   echo "$ticket" > chirp.ticket'''
   script_contents += "\nwget %s\n" % parrot_url
-  script_contents += "tar xvzf %s \n" % parrot_url.split('/')[-1] 
+  script_contents += "tar xzf %s \n" % parrot_url.split('/')[-1] 
   if config.has_option('Application', 'location') and config.get('Application', 'location') != '':
     script_contents += "wget %s\n" % config.get('Application', 'location')
-    script_contents += "tar xvzf %s\n" % config.get('Application', 'location').split('/')[-1]
+    script_contents += "tar xzf %s\n" % config.get('Application', 'location').split('/')[-1]
   arguments = ''
   if config.has_option('Application', 'arguments'):
     arguments = config.get('Application', 'arguments')
