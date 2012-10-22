@@ -125,6 +125,7 @@ if __name__ == '__main__':
   
   
   script_contents = "#!/bin/bash\n"
+  script_contents += "curr_dir=`cwd`"
   script_contents += "ticket=\"\n%s\n\"\n" % ticket
   script_contents += "temp_directory='%s'\n" % tempfile.mktemp()
   script_contents += '''
@@ -142,4 +143,6 @@ if __name__ == '__main__':
   script_contents += "export CHIRP_MOUNT=/chirp/%s\n" % chirp_host
   script_contents += "./parrot/bin/parrot_run -a ticket -i ./chirp.ticket %s %s $@\n" % (config.get('Application', 'script'),
                                                                                     arguments)  
+  script_contents += "cd $curr_dir"
+  script_contents += "rm -fr $temp_directory"
   open('job_script.sh', 'w').write(script_contents)
