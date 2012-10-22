@@ -98,15 +98,15 @@ if __name__ == '__main__':
     sys.stderr.write("Must give an script to run\n")
     sys.exit(1)
 
-  for directory in read_directories:
-    if not set_chirp_acls(directory, 'r'):
-      sys.stderr.write("Can't set read acl for %s\n" % directory)
-      sys.exit(1)
-  
-  for directory in write_directories:
-    if not set_chirp_acls(directory, 'w'):
-      sys.stderr.write("Can't set write acl for %s\n" % directory)
-      sys.exit(1)
+#  for directory in read_directories:
+#    if not set_chirp_acls(directory, 'r'):
+#      sys.stderr.write("Can't set read acl for %s\n" % directory)
+#      sys.exit(1)
+#  
+#  for directory in write_directories:
+#    if not set_chirp_acls(directory, 'w'):
+#      sys.stderr.write("Can't set write acl for %s\n" % directory)
+#      sys.exit(1)
   
   chirp_host = get_chirp_host()
   ticket_call = "chirp %s ticket_create -output myticket.ticket -bits 1024 -duration 86400 " % chirp_host
@@ -125,12 +125,12 @@ if __name__ == '__main__':
   
   
   script_contents = "#!/bin/bash\n"
-  script_contents += "ticket=<<EOF\n%s\nEOF\n" % ticket
+  script_contents += "ticket=\"\n%s\n\"\n" % ticket
   script_contents += "temp_directory='%s'\n" % tempfile.mktemp()
   script_contents += '''
   mkdir $temp_directory
   cd $temp_directory
-  echo $ticket > chirp.ticket'''
+  echo "$ticket" > chirp.ticket'''
   script_contents += "\nwget %s\n" % parrot_url
   script_contents += "tar xvzf %s \n" % parrot_url.split('/')[-1] 
   if config.has_option('Application', 'location') and config.get('Application', 'location') != '':
@@ -139,7 +139,7 @@ if __name__ == '__main__':
   arguments = ''
   if config.has_option('Application', 'arguments'):
     arguments = config.get('Application', 'arguments')
-  script_contents += "export CHIRP_MOUNT=/chirp/%s" % chirp_host
+  script_contents += "export CHIRP_MOUNT=/chirp/%s\n" % chirp_host
   script_contents += "./parrot/bin/parrot_run -a ticket -i ./chirp.ticket %s %s $@\n" % (config.get('Application', 'script'),
                                                                                     arguments)  
   open('job_script.sh', 'w').write(script_contents)
