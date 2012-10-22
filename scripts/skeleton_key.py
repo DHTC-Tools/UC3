@@ -112,9 +112,9 @@ if __name__ == '__main__':
   ticket_call = "chirp %s ticket_create -output myticket.ticket -bits 1024 -duration 86400 " % chirp_host
   
   for directory in read_directories:
-    ticket_call += " %s rl "
+    ticket_call += " %s rl " % directory
   for directory in write_directories:
-    ticket_call += " %s rwl "
+    ticket_call += " %s rwl " % directory
   
   retcode = os.system(ticket_call)
   if os.WEXITSTATUS(retcode) != 0:
