@@ -53,6 +53,33 @@ def get_chirp_host():
   port = open(os.path.join(chirp_dir, 'chirp.port')).read().strip()
   return "uc3-data.uchicago.edu:%s" % port
   
+  
+def generate_xrootd_args(config):
+  """
+  Generate xrootd specific arguments for parrot_run based on config file
+  """
+  return ""
+
+def generate_cvmfs_args(config):
+  """
+  Generate cvmfs specific arguments for parrot_run based on config file
+  """
+  args = "<default-repositories>"
+
+  if not config.has_section('CVMFS'):
+    return args
+  
+  repo_num = 1
+  while True:
+    repo_opt = "repo%s" % repo_num
+    if not config.has_option('CVMFS', repo_opt):
+      # no more repos to add
+      break
+    args += " %s:%s" % (config.get_option('CVMFS', repo_opt), 
+                        config.get_option('CVMFS', "%s_options" % repo_opt))
+    
+  return args
+  
 if __name__ == '__main__':
   parser = optparse.OptionParser(usage='Usage: %prog [options] arg1 arg2', 
                                  version='%prog ' + VERSION)
@@ -140,9 +167,12 @@ if __name__ == '__main__':
   arguments = ''
   if config.has_option('Application', 'arguments'):
     arguments = config.get('Application', 'arguments')
+  cvmfs_arguments = generate_cvmfs_args(config)
+  xrootd_arguments = generate_xrootd_args(config)
   script_contents += "export CHIRP_MOUNT=/chirp/%s\n" % chirp_host
-  script_contents += "./parrot/bin/parrot_run -a ticket -i ./chirp.ticket %s %s $@\n" % (config.get('Application', 'script'),
-                                                                                    arguments)  
+  script_contents += "./parrot/bin/parrot_run -a ticket -i ./chirp.ticket"
+  script_contents += "%s %s" % (cvmfs_arguments, xrootd_arguments)
+  script_contents +=  "%s %s $@\n" % (config.get('Application', 'script'), arguments)  
   script_contents += "cd $curr_dir"
   script_contents += "rm -fr $temp_directory"
   open('job_script.sh', 'w').write(script_contents)
