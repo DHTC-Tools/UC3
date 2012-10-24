@@ -42,6 +42,14 @@ def set_chirp_acls(directory, acl = 'r'):
   open(acl_file, 'w').write(buf)
   return True  
   
+
+def prefix_base(base_dir, path):
+  
+  if path == '/':
+    return base_dir
+  elif path[0] == '/':
+    return os.path.join(base_dir, path[1:])
+  return os.path.join(base_dir, path[1:])
   
 def get_chirp_host():
   """
@@ -75,8 +83,8 @@ def generate_cvmfs_args(config):
     if not config.has_option('CVMFS', repo_opt):
       # no more repos to add
       break
-    args += " %s:%s" % (config.get_option('CVMFS', repo_opt), 
-                        config.get_option('CVMFS', "%s_options" % repo_opt))
+    args += " %s:%s" % (config.get('CVMFS', repo_opt), 
+                        config.get('CVMFS', "%s_options" % repo_opt))
     
   return args
   
@@ -125,18 +133,13 @@ if __name__ == '__main__':
     sys.stderr.write("Must give an script to run\n")
     sys.exit(1)
 
-  for directory in map(lambda x: os.path.join(config.get_option('Directories', 
-                                                                'chirp_base'),
-                                              x),
-                       read_directories):
+  base_dir = config.get('Directories', 'chirp_base')
+  for directory in map(lambda x:  prefix_base(base_dir, x), read_directories):
     if not set_chirp_acls(directory, 'r'):
       sys.stderr.write("Can't set read acl for %s\n" % directory)
       sys.exit(1)
   
-  for directory in map(lambda x: os.path.join(config.get_option('Directories', 
-                                                                'chirp_base'),
-                                              x),
-                       write_directories):
+  for directory in map(lambda x:  prefix_base(base_dir, x), read_directories):
     if not set_chirp_acls(directory, 'w'):
       sys.stderr.write("Can't set write acl for %s\n" % directory)
       sys.exit(1)
