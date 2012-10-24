@@ -49,7 +49,7 @@ def prefix_base(base_dir, path):
     return base_dir
   elif path[0] == '/':
     return os.path.join(base_dir, path[1:])
-  return os.path.join(base_dir, path[1:])
+  return os.path.join(base_dir, path)
   
 def get_chirp_host():
   """
@@ -72,16 +72,17 @@ def generate_cvmfs_args(config):
   """
   Generate cvmfs specific arguments for parrot_run based on config file
   """
-  args = "<default-repositories>"
+  args = " -r '<default-repositories>"
 
   if not config.has_section('CVMFS'):
-    return args
+    return ""
   
   repo_num = 1
   while True:
     repo_opt = "repo%s" % repo_num
     if not config.has_option('CVMFS', repo_opt):
       # no more repos to add
+      args += "' "
       break
     args += " %s:%s" % (config.get('CVMFS', repo_opt), 
                         config.get('CVMFS', "%s_options" % repo_opt))
@@ -139,7 +140,7 @@ if __name__ == '__main__':
       sys.stderr.write("Can't set read acl for %s\n" % directory)
       sys.exit(1)
   
-  for directory in map(lambda x:  prefix_base(base_dir, x), read_directories):
+  for directory in map(lambda x:  prefix_base(base_dir, x), write_directories):
     if not set_chirp_acls(directory, 'w'):
       sys.stderr.write("Can't set write acl for %s\n" % directory)
       sys.exit(1)
