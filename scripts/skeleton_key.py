@@ -125,12 +125,18 @@ if __name__ == '__main__':
     sys.stderr.write("Must give an script to run\n")
     sys.exit(1)
 
-  for directory in read_directories:
+  for directory in map(lambda x: os.path.join(config.get_option('Directories', 
+                                                                'chirp_base'),
+                                              x),
+                       read_directories):
     if not set_chirp_acls(directory, 'r'):
       sys.stderr.write("Can't set read acl for %s\n" % directory)
       sys.exit(1)
   
-  for directory in write_directories:
+  for directory in map(lambda x: os.path.join(config.get_option('Directories', 
+                                                                'chirp_base'),
+                                              x),
+                       write_directories):
     if not set_chirp_acls(directory, 'w'):
       sys.stderr.write("Can't set write acl for %s\n" % directory)
       sys.exit(1)
