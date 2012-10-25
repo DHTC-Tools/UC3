@@ -153,7 +153,7 @@ if __name__ == '__main__':
   
   script_contents = "#!/bin/bash\n"
   script_contents += "curr_dir=`cwd`\n"
-  script_contents += "ticket=\"\n%s\n\"\n" % ticket
+  script_contents += "ticket='\n%s\n'\n" % ticket
   script_contents += "temp_directory='%s'\n" % tempfile.mktemp()
   script_contents += '''
   mkdir $temp_directory
