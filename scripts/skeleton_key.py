@@ -17,7 +17,7 @@ def set_chirp_acls(directory, acl = 'r'):
   if acl == 'w':
     acl_string = 'rwlda'
   if not os.path.exists(acl_file):
-    acl_perms = "unix:%s rwlda\nhostname:*.uchicago.edu rwlda\n" % (user)
+    acl_perms = "unix:%s rwlda\n" % (user)
     open(acl_file, 'w').write(acl_perms)
     return True
   buf = open(acl_file).read()
@@ -25,19 +25,9 @@ def set_chirp_acls(directory, acl = 'r'):
   if match is None:
     buf += "unix:%s %s\n" % (user, acl_string)
   elif acl in match.group(1):
-    pass 
+    return 
   else:
     buf = re.sub("unix:%s\s+([a-z]*)\s" % user,  "unix:%s rwlda" % user, buf)
-
-  match = re.search("hostname:\*.uchicago.edu\s+([a-z]*)\s", buf)
-  if match is None:
-    buf += "hostname:*.uchicago.edu %s\n" % (acl_string)
-  elif acl in match.group(1):
-    pass 
-  else:
-    buf = re.sub("hostname:\*.uchicago.edu\s+([a-z]*)\s" % user,  "hostname:*.uchicago.edu rwlda", buf)
-    open(acl_file, 'w').write(buf)
-    return True
   
   open(acl_file, 'w').write(buf)
   return True  
