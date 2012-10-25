@@ -147,7 +147,7 @@ if __name__ == '__main__':
   if os.WEXITSTATUS(retcode) != 0:
     sys.stderr.write("Can't create ticket\n")
   #  sys.exit(1)  
-  ticket = open('myticket.ticket').read().replace('"', '\"')  
+  ticket = open('myticket.ticket').read().replace('"', r'\"')  
   os.unlink('myticket.ticket')
   
   
