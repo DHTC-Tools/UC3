@@ -25,7 +25,7 @@ def set_chirp_acls(directory, acl = 'r'):
   if match is None:
     buf += "unix:%s %s\n" % (user, acl_string)
   elif acl in match.group(1):
-    return 
+    return True
   else:
     buf = re.sub("unix:%s\s+([a-z]*)\s" % user,  "unix:%s rwlda" % user, buf)
   
