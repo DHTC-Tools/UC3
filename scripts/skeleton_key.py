@@ -147,13 +147,13 @@ if __name__ == '__main__':
   if os.WEXITSTATUS(retcode) != 0:
     sys.stderr.write("Can't create ticket\n")
   #  sys.exit(1)  
-  ticket = open('myticket.ticket').read()
+  ticket = open('myticket.ticket').read().replace('"', '\"')  
   os.unlink('myticket.ticket')
   
   
   script_contents = "#!/bin/bash\n"
   script_contents += "curr_dir=`cwd`\n"
-  script_contents += "ticket='\n%s\n'\n" % ticket
+  script_contents += "ticket=\"\n%s\n\"\n" % ticket
   script_contents += "temp_directory='%s'\n" % tempfile.mktemp()
   script_contents += '''
   mkdir $temp_directory
