@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import optparse, os, sys, tempfile, ConfigParser, getpass, re
+import optparse, os, sys, ConfigParser, getpass, re
 
 VERSION = '0.02'
 
@@ -154,9 +154,8 @@ if __name__ == '__main__':
   script_contents = "#!/bin/bash\n"
   script_contents += "curr_dir=`cwd`\n"
   script_contents += "ticket=\"\n%s\n\"\n" % ticket
-  script_contents += "temp_directory='%s'\n" % tempfile.mktemp()
+  script_contents += "temp_directory=`mktemp -d`\n" 
   script_contents += '''
-  mkdir $temp_directory
   cd $temp_directory
   echo "$ticket" > chirp.ticket'''
   script_contents += "\nwget %s\n" % parrot_url
