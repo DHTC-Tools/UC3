@@ -1,0 +1,34 @@
+# "Sherlock" job to probe remote host for various environment information
+
+# Path to the program
+Executable = sherlock.py 
+
+# Condor universe. Describes various condor runtime environments.
+#  'vanilla' should be sufficient for most batch jobs. 
+Universe   = vanilla
+
+# Specify the error file, output file, and log file 
+Error 	   = sherlock.err
+Output	   = sherlock.out
+Log        = sherlock.log
+
+#######----------- Target cluster -----------######
+###### No target will run at first available  #####
+#---- Force UC3 seeder cluster
+#Requirements = ( regexp("^uc3.*", TARGET.Machine,"IM") == True )
+#---- Force seeder cluster OR MWT2
+#Requirements = UidDomain == "osg-gk.mwt2.org"
+#---- Force MWT2
+#Requirements = (UidDomain == "osg-gk.mwt2.org") && (regexp("^uct2.*",TARGET.Machine,"IM") == True)
+#---- Force ITS cluster
+#Requirements = (Machine == "appcloud01.uchicago.edu")
+#-------------------------------------------------#
+
+# We don't want to be emailed about this job.
+Notification = Never
+
+# Set the accounting group
++AccountingGroup= "group_friends.lincolnb"
+
+# And we're off!
+queue 
