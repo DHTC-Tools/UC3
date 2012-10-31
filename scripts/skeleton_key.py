@@ -5,17 +5,15 @@ import optparse, os, sys, ConfigParser, getpass, re
 VERSION = '0.02'
 
 
-def set_chirp_acls(directory, acl = 'r'):
+def set_chirp_acls(directory, base_dir, acl = 'r'):
   """
   Check acls for a directory and set it if needed
   """
-  if not os.path.exists(directory) or not os.path.isdir(directory):
+  real_dir = prefix_base(base_dir, directory)
+  if not os.path.exists(real_dir) or not os.path.isdir(real_dir):
     return False
-  acl_file = os.path.join(directory, '.__acl')
+  acl_file = os.path.join(real_dir, '.__acl')
   user = getpass.getuser()
-  acl_string = 'rl'
-  if acl == 'w':
-    acl_string = 'rwlda'
   if not os.path.exists(acl_file):
     acl_perms = "unix:%s rwlda\n" % (user)
     open(acl_file, 'w').write(acl_perms)
@@ -23,13 +21,14 @@ def set_chirp_acls(directory, acl = 'r'):
   buf = open(acl_file).read()
   match = re.search("unix:%s\s+([a-z]*)\s" % user, buf)
   if match is None:
-    buf += "unix:%s %s\n" % (user, acl_string)
-  elif acl in match.group(1):
+    buf += "unix:%s rwlda\n" % (user)
+  elif 'rwlda' in match.group(1):
     return True
   else:
     buf = re.sub("unix:%s\s+([a-z]*)\s" % user,  "unix:%s rwlda" % user, buf)
   
   open(acl_file, 'w').write(buf)
+  os.system("resetacl %s rwlda" % directory)
   return True  
   
 
@@ -76,6 +75,7 @@ def generate_cvmfs_args(config):
       break
     args += " %s:%s" % (config.get('CVMFS', repo_opt), 
                         config.get('CVMFS', "%s_options" % repo_opt))
+    repo_num += 1
     
   return args
   
@@ -125,13 +125,13 @@ if __name__ == '__main__':
     sys.exit(1)
 
   base_dir = config.get('Directories', 'chirp_base')
-  for directory in map(lambda x:  prefix_base(base_dir, x), read_directories):
-    if not set_chirp_acls(directory, 'r'):
+  for directory in read_directories:
+    if not set_chirp_acls(directory, base_dir, 'r'):
       sys.stderr.write("Can't set read acl for %s\n" % directory)
       sys.exit(1)
   
-  for directory in map(lambda x:  prefix_base(base_dir, x), write_directories):
-    if not set_chirp_acls(directory, 'w'):
+  for directory in write_directories:
+    if not set_chirp_acls(directory, base_dir, 'w'):
       sys.stderr.write("Can't set write acl for %s\n" % directory)
       sys.exit(1)
   
