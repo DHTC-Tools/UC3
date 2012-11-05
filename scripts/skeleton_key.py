@@ -57,12 +57,27 @@ def generate_xrootd_args(config):
   """
   return ""
 
-def generate_cvmfs_args(config):
+def set_cvmfs_key(cvmfs_options, key):
+  """
+  Set CVMFS pubkey option in cvmfs_options string, replacing current key if present
+  """
+  if 'pubkey' not in cvmfs_options:
+    return cvmfs_options + ",pubkey=" + key
+  
+  options = ""
+  for opt in cvmfs_options.split(','):
+    if 'pubkey' in opt:
+      options += ",pubkey=" + key
+    else:
+      options += opt 
+  return options[1:]
+
+def parse_cvmfs_options(config):
   """
   Generate cvmfs specific arguments for parrot_run based on config file
   """
   args = " -r '<default-repositories>"
-
+  keys = []
   if not config.has_section('CVMFS'):
     return ""
   
@@ -73,11 +88,25 @@ def generate_cvmfs_args(config):
       # no more repos to add
       args += "' "
       break
+    opt_name = "repo%s_key" % repo_num
+    if config.has_option('CVMFS', opt_name):
+      keys.append(config.get('CVMFS', opt_name))
+    else:
+      sys.stderr.write("Missing %s in CVMFS section\n" % opt_name)
+      sys.exit(1)
+      
+    opt_name = "repo%s_options" % repo_num
+    if config.has_option('CVMFS', opt_name):
+      cvmfs_options = config.get('CVMFS', opt_name)
+      cvmfs_options = set_cvmfs_key(cvmfs_options, keys[-1]) 
+    else:
+      sys.stderr.write("Missing %s in CVMFS section\n" % opt_name)
+      sys.exit(1)
     args += " %s:%s" % (config.get('CVMFS', repo_opt), 
                         config.get('CVMFS', "%s_options" % repo_opt))
     repo_num += 1
     
-  return args
+  return (args, keys)
   
 if __name__ == '__main__':
   parser = optparse.OptionParser(usage='Usage: %prog [options] arg1 arg2', 
@@ -166,7 +195,10 @@ if __name__ == '__main__':
   arguments = ''
   if config.has_option('Application', 'arguments'):
     arguments = config.get('Application', 'arguments')
-  cvmfs_arguments = generate_cvmfs_args(config)
+  if config.has_option('Application', 'http_proxy') and config.get('Application', 'http_proxy') != '':
+    script_contents += "export HTTP_PROXY=%s\n" % config.get('Application', 'http_proxy')
+  (cvmfs_arguments, keys) = parse_cvmfs_options(config)
+  
   xrootd_arguments = generate_xrootd_args(config)
   script_contents += "export CHIRP_MOUNT=/chirp/%s\n" % chirp_host
   script_contents += "./parrot/bin/parrot_run -a ticket -i ./chirp.ticket"
