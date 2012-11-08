@@ -197,8 +197,10 @@ if __name__ == '__main__':
     arguments = config.get('Application', 'arguments')
   if config.has_option('Application', 'http_proxy') and config.get('Application', 'http_proxy') != '':
     script_contents += "export HTTP_PROXY=%s\n" % config.get('Application', 'http_proxy')
-  (cvmfs_arguments, keys) = parse_cvmfs_options(config)
+  (cvmfs_arguments, pubkeys) = parse_cvmfs_options(config)
   
+  for pubkey in pubkeys:
+     script_contents += "wget %s\n"
   xrootd_arguments = generate_xrootd_args(config)
   script_contents += "export CHIRP_MOUNT=/chirp/%s\n" % chirp_host
   script_contents += "./parrot/bin/parrot_run -a ticket -i ./chirp.ticket"
