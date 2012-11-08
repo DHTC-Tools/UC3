@@ -5,6 +5,7 @@
 #
 # Author: Suchandra Thapa sthapa@ci.uchicago.edu
 CHIRP=/usr/local/chirp/bin/chirp_server_hdfs
+export JAVA_OPTS="-server -Xmx1024m"
 export JAVA_HOME=/usr/java
 export HADOOP_HOME=/usr/lib/hadoop
 export LIBJVM_PATH=/usr/java/default/jre/lib/amd64/server/libjvm.so
@@ -28,7 +29,7 @@ case "$1" in
       then
           echo "unix:$username rwlda" > $CHIRP_DIR/acl        
       fi
-      daemon --pidfile $CHIRP_PIDFILE $CHIRP -r hdfs://uc3-cloud.mwt2.org:9000/$username -Z $CHIRP_DIR/chirp.port -A $CHIRP_DIR/acl& 
+      daemon --pidfile $CHIRP_PIDFILE $CHIRP -b -r hdfs://uc3-cloud.mwt2.org:9000/$username -Z $CHIRP_DIR/chirp.port -A $CHIRP_DIR/acl& 
       RETVAL=$?
       echo
       if [ $RETVAL -eq 0 ] ;

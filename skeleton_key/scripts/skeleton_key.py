@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import optparse, os, sys, ConfigParser, getpass, re
+import optparse, os, sys, ConfigParser, getpass, re, urlparse
 
 VERSION = '0.02'
 
@@ -61,15 +61,17 @@ def set_cvmfs_key(cvmfs_options, key):
   """
   Set CVMFS pubkey option in cvmfs_options string, replacing current key if present
   """
+  key_file = urlparse.urlparse(key)[2].split('/')[-1]
   if 'pubkey' not in cvmfs_options:
-    return cvmfs_options + ",pubkey=" + key
+    return cvmfs_options + ",pubkey=" + key_file
   
   options = ""
   for opt in cvmfs_options.split(','):
     if 'pubkey' in opt:
-      options += ",pubkey=" + key
+      options += ",pubkey=" + key_file
     else:
-      options += opt 
+      options += "," + opt 
+  # Return options minus the leading , 
   return options[1:]
 
 def parse_cvmfs_options(config):
@@ -103,7 +105,7 @@ def parse_cvmfs_options(config):
       sys.stderr.write("Missing %s in CVMFS section\n" % opt_name)
       sys.exit(1)
     args += " %s:%s" % (config.get('CVMFS', repo_opt), 
-                        config.get('CVMFS', "%s_options" % repo_opt))
+                        cvmfs_options)
     repo_num += 1
     
   return (args, keys)
@@ -147,7 +149,7 @@ if __name__ == '__main__':
   if config.has_option('Parrot', 'location') and config.get('Parrot', 'location') != '':
     parrot_url = config.get('Parrot', 'location')
   else:
-    parrot_url = 'http://itbv-web.uchicago.edu/parrot.tar.gz'
+    parrot_url = 'http://uc3-data.uchicago.edu/parrot.tar.gz'
     
   if not config.has_option('Application', 'script'):
     sys.stderr.write("Must give an script to run\n")
@@ -200,7 +202,7 @@ if __name__ == '__main__':
   (cvmfs_arguments, pubkeys) = parse_cvmfs_options(config)
   
   for pubkey in pubkeys:
-     script_contents += "wget %s\n"
+     script_contents += "wget %s\n" % pubkey
   xrootd_arguments = generate_xrootd_args(config)
   script_contents += "export CHIRP_MOUNT=/chirp/%s\n" % chirp_host
   script_contents += "./parrot/bin/parrot_run -a ticket -i ./chirp.ticket"
