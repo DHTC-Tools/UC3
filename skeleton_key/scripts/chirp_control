@@ -29,7 +29,7 @@ case "$1" in
       then
           echo "unix:$username rwlda" > $CHIRP_DIR/acl        
       fi
-      daemon --pidfile $CHIRP_PIDFILE $CHIRP -b -r hdfs://uc3-cloud.mwt2.org:9000/$username -Z $CHIRP_DIR/chirp.port -A $CHIRP_DIR/acl& 
+      daemon --pidfile $CHIRP_PIDFILE $CHIRP -b -r hdfs://uc3-cloud.mwt2.org:9000/users/$username -Z $CHIRP_DIR/chirp.port -A $CHIRP_DIR/acl& 
       RETVAL=$?
       echo
       if [ $RETVAL -eq 0 ] ;
