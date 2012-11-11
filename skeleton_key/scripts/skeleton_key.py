@@ -81,7 +81,7 @@ def parse_cvmfs_options(config):
   args = " -r '<default-repositories>"
   keys = []
   if not config.has_section('CVMFS'):
-    return ""
+    return ("", [])
   
   repo_num = 1
   while True:
