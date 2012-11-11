@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
-import optparse, os, sys, ConfigParser, getpass, re, urlparse
+import optparse, os, sys, ConfigParser, getpass, re, urlparse, time
 
-VERSION = '0.02'
+VERSION = '0.3'
 
 
 def set_chirp_acls(directory, base_dir, acl = 'r'):
@@ -47,6 +47,7 @@ def get_chirp_host():
   chirp_dir = os.path.expanduser('~/.chirp')
   if not os.path.exists(os.path.join(chirp_dir, 'chirp_running')):
     os.system('/usr/local/bin/chirp_control start')
+    time.sleep(3)
   port = open(os.path.join(chirp_dir, 'chirp.port')).read().strip()
   return "uc3-data.uchicago.edu:%s" % port
   

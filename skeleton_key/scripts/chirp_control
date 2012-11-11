@@ -46,9 +46,8 @@ case "$1" in
   stop)
       echo -n "Shutting down chirp server: "
       killproc -p $CHIRP_PIDFILE chirp_server
-      rm $CHIRP_DIR/chirp_running
       echo
-      [ $RETVAL -eq 0 ] && touch $CHIRP_LOCKFILE
+      [ $RETVAL -eq 0 ] && rm $CHIRP_LOCKFILE
 	;;
 
   restart|reload)
