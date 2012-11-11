@@ -134,13 +134,13 @@ if __name__ == '__main__':
   config = ConfigParser.SafeConfigParser()
   config.read(options.config_file)
   
-  if config.has_option('Directories', 'read'):
+  if config.has_option('Directories', 'read')  and config.get('Directories', 'read') != ''::
     read_directories = config.get('Directories', 'read').split(',')
     read_directories = map(lambda x: x.strip(), read_directories)
   else:
     read_directories = ''
   
-  if config.has_option('Directories', 'write'):
+  if config.has_option('Directories', 'write')  and config.get('Directories', 'write') != ''::
     write_directories = config.get('Directories', 'write').split(',')
     write_directories = map(lambda x: x.strip(), write_directories)
   else:
