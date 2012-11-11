@@ -46,7 +46,7 @@ def get_chirp_host():
   """
   chirp_dir = os.path.expanduser('~/.chirp')
   if not os.path.exists(os.path.join(chirp_dir, 'chirp_running')):
-    os.system('/usr/local/bin/chirp start')
+    os.system('/usr/local/bin/chirp_control start')
   port = open(os.path.join(chirp_dir, 'chirp.port')).read().strip()
   return "uc3-data.uchicago.edu:%s" % port
   
