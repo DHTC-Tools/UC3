@@ -106,7 +106,9 @@ def parse_cvmfs_options(config):
       break
     opt_name = "repo%s_key" % repo_num
     if config.has_option('CVMFS', opt_name):
-      keys.append(config.get('CVMFS', opt_name))
+      key = config.get('CVMFS', opt_name)
+      if key not in keys:
+        keys.append(key)
     else:
       sys.stderr.write("Missing %s in CVMFS section\n" % opt_name)
       sys.exit(1)
