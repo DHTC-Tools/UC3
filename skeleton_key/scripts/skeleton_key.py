@@ -151,10 +151,10 @@ if __name__ == '__main__':
   read_directions = []
   write_directions = []
   ticket = ""
+  chirp_host = get_chirp_host()
   if config.has_section('Directories'):
     read_directories = get_directories(config, 'read')
     write_directories = get_directories(config, 'write')
-    chirp_host = get_chirp_host()
     ticket_call = "chirp %s ticket_create -output myticket.ticket -bits 1024 -duration 86400 " % chirp_host
     base_dir = config.get('Directories', 'chirp_base')
     for directory in read_directories:
