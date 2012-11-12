@@ -5,6 +5,19 @@ import optparse, os, sys, ConfigParser, getpass, re, urlparse, time
 VERSION = '0.3'
 
 
+def get_directories(config, dir_type):
+  """
+  Get read or write directories and return formatted list
+  """
+  
+  if config.has_option('Directories', dir_type) and config.get('Directories', dir_type) != '':
+    directories = config.get('Directories', dir_type).split(',')
+    directories = map(lambda x: x.strip(), directories)
+    return directories
+  else:
+    return []
+  
+
 def set_chirp_acls(directory, base_dir, acl = 'r'):
   """
   Check acls for a directory and set it if needed
@@ -135,52 +148,45 @@ if __name__ == '__main__':
   config = ConfigParser.SafeConfigParser()
   config.read(options.config_file)
   
-  if config.has_option('Directories', 'read')  and config.get('Directories', 'read') != '':
-    read_directories = config.get('Directories', 'read').split(',')
-    read_directories = map(lambda x: x.strip(), read_directories)
-  else:
-    read_directories = ''
-  
-  if config.has_option('Directories', 'write')  and config.get('Directories', 'write') != '':
-    write_directories = config.get('Directories', 'write').split(',')
-    write_directories = map(lambda x: x.strip(), write_directories)
-  else:
-    write_directories = ''
-  
-  if config.has_option('Parrot', 'location') and config.get('Parrot', 'location') != '':
-    parrot_url = config.get('Parrot', 'location')
-  else:
-    parrot_url = 'http://uc3-data.uchicago.edu/parrot.tar.gz'
+  read_directions = []
+  write_directions = []
+  if config.has_section('Directories'):
+    read_directories = get_directories(config, 'read')
+    write_directories = get_directories(config, 'write')
+    chirp_host = get_chirp_host()
+    ticket_call = "chirp %s ticket_create -output myticket.ticket -bits 1024 -duration 86400 " % chirp_host
+    base_dir = config.get('Directories', 'chirp_base')
+    for directory in read_directories:
+      if not set_chirp_acls(directory, base_dir, 'r'):
+        sys.stderr.write("Can't set read acl for %s\n" % directory)
+        sys.exit(1)
+      ticket_call += " %s rl " % directory
+      
+    for directory in write_directories:
+      if not set_chirp_acls(directory, base_dir, 'w'):
+        sys.stderr.write("Can't set write acl for %s\n" % directory)
+        sys.exit(1)
+      ticket_call += " %s rwl " % directory
+    
+    
+    retcode = os.system(ticket_call)
+    if os.WEXITSTATUS(retcode) != 0:
+      sys.stderr.write("Can't create ticket\n")
+    #  sys.exit(1)  
+    ticket = open('myticket.ticket').read().replace('"', r'\"')  
+    os.unlink('myticket.ticket')
+
+
+  if config.has_section('Parrot'):  
+    if config.has_option('Parrot', 'location') and config.get('Parrot', 'location') != '':
+      parrot_url = config.get('Parrot', 'location')
+    else:
+      parrot_url = 'http://uc3-data.uchicago.edu/parrot.tar.gz'
     
   if not config.has_option('Application', 'script'):
     sys.stderr.write("Must give an script to run\n")
     sys.exit(1)
 
-  base_dir = config.get('Directories', 'chirp_base')
-  for directory in read_directories:
-    if not set_chirp_acls(directory, base_dir, 'r'):
-      sys.stderr.write("Can't set read acl for %s\n" % directory)
-      sys.exit(1)
-  
-  for directory in write_directories:
-    if not set_chirp_acls(directory, base_dir, 'w'):
-      sys.stderr.write("Can't set write acl for %s\n" % directory)
-      sys.exit(1)
-  
-  chirp_host = get_chirp_host()
-  ticket_call = "chirp %s ticket_create -output myticket.ticket -bits 1024 -duration 86400 " % chirp_host
-  
-  for directory in read_directories:
-    ticket_call += " %s rl " % directory
-  for directory in write_directories:
-    ticket_call += " %s rwl " % directory
-  
-  retcode = os.system(ticket_call)
-  if os.WEXITSTATUS(retcode) != 0:
-    sys.stderr.write("Can't create ticket\n")
-  #  sys.exit(1)  
-  ticket = open('myticket.ticket').read().replace('"', r'\"')  
-  os.unlink('myticket.ticket')
   
   
   script_contents = "#!/bin/bash\n"
@@ -203,9 +209,10 @@ if __name__ == '__main__':
   (cvmfs_arguments, pubkeys) = parse_cvmfs_options(config)
   
   for pubkey in pubkeys:
-     script_contents += "wget %s\n" % pubkey
+    script_contents += "wget %s\n" % pubkey
   xrootd_arguments = generate_xrootd_args(config)
   script_contents += "export CHIRP_MOUNT=/chirp/%s\n" % chirp_host
+  script_contents += "export PARROT_ALLOW_SWITCHING_CVMFS_REPOSITORIES=1"
   script_contents += "./parrot/bin/parrot_run -a ticket -i ./chirp.ticket"
   script_contents += "%s %s" % (cvmfs_arguments, xrootd_arguments)
   script_contents +=  "%s %s $@\n" % (config.get('Application', 'script'), arguments)  
