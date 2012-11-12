@@ -150,6 +150,7 @@ if __name__ == '__main__':
   
   read_directions = []
   write_directions = []
+  ticket = ""
   if config.has_section('Directories'):
     read_directories = get_directories(config, 'read')
     write_directories = get_directories(config, 'write')
@@ -212,7 +213,7 @@ if __name__ == '__main__':
     script_contents += "wget %s\n" % pubkey
   xrootd_arguments = generate_xrootd_args(config)
   script_contents += "export CHIRP_MOUNT=/chirp/%s\n" % chirp_host
-  script_contents += "export PARROT_ALLOW_SWITCHING_CVMFS_REPOSITORIES=1"
+  script_contents += "export PARROT_ALLOW_SWITCHING_CVMFS_REPOSITORIES=1\n"
   script_contents += "./parrot/bin/parrot_run -a ticket -i ./chirp.ticket"
   script_contents += "%s %s" % (cvmfs_arguments, xrootd_arguments)
   script_contents +=  "%s %s $@\n" % (config.get('Application', 'script'), arguments)  
