@@ -216,6 +216,7 @@ if __name__ == '__main__':
   xrootd_arguments = generate_xrootd_args(config)
   script_contents += "export CHIRP_MOUNT=/chirp/%s\n" % chirp_host
   script_contents += "export PARROT_ALLOW_SWITCHING_CVMFS_REPOSITORIES=1\n"
+  script_contents += "export PARROT_HELPER=`pwd`/parrot/lib/libparrot_helper.so"
   script_contents += "./parrot/bin/parrot_run -a ticket -i ./chirp.ticket"
   script_contents += "%s %s" % (cvmfs_arguments, xrootd_arguments)
   script_contents +=  "%s %s $@\n" % (config.get('Application', 'script'), arguments)  
