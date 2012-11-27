@@ -180,11 +180,11 @@ if __name__ == '__main__':
     os.unlink('myticket.ticket')
 
 
+  parrot_url = 'http://uc3-data.uchicago.edu/parrot.tar.gz'
   if config.has_section('Parrot'):  
     if config.has_option('Parrot', 'location') and config.get('Parrot', 'location') != '':
       parrot_url = config.get('Parrot', 'location')
-    else:
-      parrot_url = 'http://uc3-data.uchicago.edu/parrot.tar.gz'
+    
     
   if not config.has_option('Application', 'script'):
     sys.stderr.write("Must give an script to run\n")
