@@ -23,7 +23,7 @@ def release():
 def meminfo():
 	try:
 		f = open('/proc/meminfo')
-		return str(int(f.readline().rstrip().split()[1])/1024/1024)
+		return str(int(f.readline().rstrip().split()[1])/1024/1024 + 1)
 		close(f)
 	except:
 		raise "Couldnt get RAM info"	
