@@ -95,4 +95,4 @@ echo "Making inspector, staging to disk, and running inspector..."
 # I wanted to minimize the number of files that get transfered with the condor
 # job, so I just start bash and execute my code in there. Obviously not
 # scalable.
-./parrot/bin/parrot_run -r atlas.cern.ch:url=http://cvmfs.racf.bnl.gov:8000/opt/atlas,pubkey=cern.ch.pub,quota_limit=1000 /bin/bash -c 'make; xrdcp root://xrddc.mwt2.org:1096//atlas/dq2/user/ilijav/HCtest/user.ilijav.HCtest.1/group.test.hc.NTUP_SMWZ.root .; ./inspector group.test.hc.NTUP_SMWZ.root'
+./parrot/bin/parrot_run -r atlas.cern.ch:url=http://cvmfs.racf.bnl.gov:8000/opt/atlas,pubkey=cern.ch.pub,quota_limit=1000 /bin/bash -c 'make; ./inspector root://xrddc.mwt2.org:1096//atlas/dq2/user/ilijav/HCtest/user.ilijav.HCtest.1/group.test.hc.NTUP_SMWZ.root' 
