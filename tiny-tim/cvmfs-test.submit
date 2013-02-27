@@ -1,0 +1,9 @@
+executable     = tiny-tim.sh
+universe       = vanilla
+Error   = log/err.$(Cluster)-$(Process)
+Output  = log/out.$(Cluster)-$(Process)
+Log     = log/log.$(Cluster)-$(Process)
+transfer_executable = True
+transfer_input_files=inspector.C,Makefile 
+when_to_transfer_output = ON_EXIT
+queue 1
