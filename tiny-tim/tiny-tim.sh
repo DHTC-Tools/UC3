@@ -24,8 +24,11 @@ echo "Extracting parrot into $WORKDIR"
 tar -xzf parrot.tar.gz
 echo "Done" 
 
-echo "Exporting canned CVMFS environment variables..."
-export PARROT_CVMFS_REPO='atlas.cern.ch:url=http://cvmfs.racf.bnl.gov:8000/opt/atlas,pubkey=cern.ch.pub,quota_limit=1000 atlas-condb.cern.ch:url=http://cvmfs.racf.bnl.gov:8000/opt/atlas-condb,pubkey=cern.ch.pub,quota_limit=1000'
+echo "Setting up CVMFS proxy and parrot helper library..."
+export HTTP_PROXY="uc3-data.uchicago.edu:3128;http://uct2-grid1.uchicago.edu:3128;DIRECT"
+export PARROT_HELPER="parrot/lib/libparrot_helper.so"
+
+echo "Setting upcanned CVMFS environment variables..."
 export HTTP_PROXY="uc3-data.uchicago.edu:3128;http://uct2-grid1.uchicago.edu:3128;DIRECT"
 export PARROT_HELPER="parrot/lib/libparrot_helper.so"
 export MANPATH=:/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/5.34.04-x86_64-slc5-gcc4.3/man:/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/gLite/3.2.11-1-patch1.sl5/edg/share/man:/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/gLite/3.2.11-1-patch1.sl5/glite/share/man:/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/gLite/3.2.11-1-patch1.sl5/glite/yaim/man:/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/gLite/3.2.11-1-patch1.sl5/globus/man:/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/gLite/3.2.11-1-patch1.sl5/lcg/man:/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/gLite/3.2.11-1-patch1.sl5/lcg/share/man::::::
