@@ -1,0 +1,2 @@
+CVMFS_QUOTA_LIMIT=25000
+#CVMFS_SERVER_URL=http://cvmfs-atlas-nightlies.cern.ch/cvmfs/atlas-nightlies.cern.ch
