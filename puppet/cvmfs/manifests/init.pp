@@ -8,7 +8,7 @@
 #   /cvmfs/atlas-nightlies.cern.ch
 #   /cvmfs/uc3.uchicago.edu  
 #
-# Usage:            class { 'cvmfsuc3::uc3::client': version => '2.0.18-1.el5'}
+# Usage:            class { 'cvmfs::uc3::client': version => '2.0.18-1.el5'}
 #
 # Original author:  Dave Lesny (for MWT2)
 # Modified by:      Lincoln Bryant (for UC3)
