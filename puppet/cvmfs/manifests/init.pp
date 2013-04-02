@@ -84,7 +84,7 @@ class cvmfs::uc3::client($version) {
     mode       => 644,
     notify     => [Service["cvmfs"], Service["autofs"]],
     require    => Package['cvmfs'],
-    source     => "puppet:///modules/cvmfs/default.local.${::domain}"
+    source     => "puppet:///modules/cvmfs/default.local"
   }
 
 # This may need to be modified to fit your site!! 
