@@ -98,7 +98,7 @@ class cvmfs::uc3::client($version) {
   cvmfs::repository::cern { 'atlas.cern.ch': }   
   cvmfs::repository::cern { 'atlas-nightlies.cern.ch': }  
   cvmfs::repository::cern { 'atlas-condb.cern.ch': }  
-  cmvfs::repository::uc3  { 'uc3.uchicago.edu': }
+  cvmfs::repository::uc3  { 'uc3.uchicago.edu': }
 
 
   service { 'cvmfs':
