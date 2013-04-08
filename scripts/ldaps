@@ -1,0 +1,151 @@
+#!/usr/bin/env python
+#
+# Being a tool to ease LDAP searches.
+# 
+# usage: ldaps <ldap search filter> [attributes you want to see]
+# example: ldaps uid=dgc
+# example: ldaps '(&(sn=champion)(givenName=david))'
+# example: ldaps '(&(ucisMemberOf=uc:org:uc3:users)(sn=gardner))' uid cn mail
+#
+# ldaps normally wants to bind to LDAP as you, to increase your access
+# to attributes.  It will prompt you for your LDAP password.  To skip
+# this step and bind anonymously, use the '-u anon' option:
+# example: ldaps -u anon uid=dgc
+#
+# To skip this step by recording your password, create a file containing
+# your password, thusly:
+# touch ~/.udb
+# chmod 600 ~/.udb
+# echo 'uid=YOURCNETID,ou=people,dc=uchicago,dc=edu::YOURPASSWORD' >~/.udb
+#
+# To use this tool to check someone for UC3 membership:
+# ldaps uid=CNETID ucisMemberOf | grep uc3
+
+import os
+import sys
+import getopt
+
+baseDN = 'dc=uchicago,dc=edu'
+commonOpts = ['-LLL', '-x', '-lnone']
+ldapURL = 'ldaps://' + (os.environ.get('LDAP') or 'ldap.uchicago.edu') + '/'
+
+class udb(object):
+	def __init__(self):
+		self.file = file
+		self.creds = []
+
+	def load(self, *args):
+		if len(args) == 0:
+			args = [os.path.join(os.environ['HOME'], '.udb')]
+
+		for file in args:
+			try:
+				fp = open(file, 'r')
+			except:
+				continue
+
+			for line in fp:
+				user, pw = line.rstrip('\n').rstrip('\r').split('::', 1)
+				self.creds.append((user, pw))
+			fp.close()
+
+		return self
+
+	def save(self, *args):
+		if len(args) == 0:
+			args = [os.path.join(os.environ['HOME'], '.udb')]
+
+		fp = open(args[0], 'w')
+		for pair in self.creds:
+			fp.write('%s::%s' % pair)
+		fp.close()
+		return self
+
+
+	def get(self, user):
+		for pair in self.creds:
+			if pair[0] == user:
+				return pair[1]
+		return None
+
+
+	def __getitem__(self, key):
+		return self.get(key)
+
+
+def usage():
+	print >>sys.stderr, \
+	      'usage: %s [-b baseDN] [-s server] [-u bindUser/DN] search params' % \
+	      os.path.basename(sys.argv[0])
+
+
+def main(args):
+	global ldapURL
+
+	base = baseDN
+	verbose = 0
+
+	fp = os.popen('whoami', 'r')
+	bind = fp.read().strip()
+	fp.close()
+
+	try:
+		opts, args = getopt.getopt(args, 'vb:u:s:h')
+	except getopt.GetoptError, e:
+		print e
+		return 2
+
+	for opt, arg in opts:
+		if opt == '-b':
+			base = arg + ',' + baseDN
+
+		if opt == '-u':
+			if arg == 'none' or arg == 'anon':
+				bind = None
+			else:
+				bind = arg
+
+		if opt == '-v':
+			verbose += 1
+
+		if opt == '-s':
+			ldapURL = 'ldaps://' + arg + '/'
+
+		if opt == '-h':
+			usage()
+			return 2
+
+	if len(args) == 0:
+		usage()
+		return 4
+		
+	users = udb().load()
+
+	if bind is None:
+		args = commonOpts + ['-H', ldapURL] + ['-b', base] + args
+	else:
+		if ',' in bind or '=' in bind:
+			bind = bind + ',' + baseDN
+		else:
+			bind = 'uid=%s,ou=people,%s' % (bind, baseDN)
+
+		pw = users[bind]
+		if pw:
+			args = commonOpts + ['-w', pw] + ['-D', bind] + \
+			       ['-H', ldapURL] + ['-b', base] + args
+		else:
+			args = commonOpts + ['-W'] + ['-D', bind] + \
+			       ['-H', ldapURL] + ['-b', base] + args
+
+	command = ['ldapsearch'] + args
+	if verbose == 1:
+		print ' '.join(command)
+	elif verbose > 1:
+		print ' '.join(["'%s'" % x for x in command])
+
+	os.execvp(command[0], command)
+
+
+if __name__ == '__main__':
+	sys.exit(main(sys.argv[1:]))
+
